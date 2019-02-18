@@ -172,17 +172,20 @@ def replyText(event):
         uId = str(event.source.user_id)
         textPart = re.findall(r'"(.*?)"', input)
         deadline = datetime.datetime.strptime(textPart[1],'%d %m %Y %H:%M')
-        message = textPart[0]
-        conn = psycopg2.connect(db_url, sslmode='require')
-        cur = conn.cursor()
-        cur.execute("SELECT count (*) FROM listSchedules where uid = '%s';" % (uId))
-        count = cur.fetchone()[0]
-        deadlineDate = datetime.datetime.strftime(deadline,'%Y-%m-%d')
-        deadlineTime = datetime.datetime.strftime(deadline,'%H:%M')
-        cur.execute("INSERT INTO listSchedules (id, uid, pesan, deadlineDate, deadlineTime) values (%s,'%s','%s','%s','%s');" % (count+1,uId,message,deadlineDate,deadlineTime))
-        reply(event,'Schedule berhasil ditambahkan!')
-        conn.commit()
-        conn.close()
+        if deadline < gmt7now():
+            reply(event,'Maaf, waktu deadline anda sudah lewat. Silahkan isikan jadwal yang mendatang.')
+        else:
+            message = textPart[0]
+            conn = psycopg2.connect(db_url, sslmode='require')
+            cur = conn.cursor()
+            cur.execute("SELECT count (*) FROM listSchedules where uid = '%s';" % (uId))
+            count = cur.fetchone()[0]
+            deadlineDate = datetime.datetime.strftime(deadline,'%Y-%m-%d')
+            deadlineTime = datetime.datetime.strftime(deadline,'%H:%M')
+            cur.execute("INSERT INTO listSchedules (id, uid, pesan, deadlineDate, deadlineTime) values (%s,'%s','%s','%s','%s');" % (count+1,uId,message,deadlineDate,deadlineTime))
+            reply(event,'Schedule berhasil ditambahkan!')
+            conn.commit()
+            conn.close()
     else:
         reply(event,'Sorry, your message was not understood')
 
