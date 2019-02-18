@@ -139,19 +139,21 @@ def replyText(event):
         results = cur.fetchall()
         if len(results)>0:
             isi = 'Dibawah ini adalah list jadwal anda: \n'
-            for i in range(len(results)-1):
+            for i in range(len(results)):
                 date = results[i][3]
                 time = results[i][4]
                 deadline = datetime.datetime.combine(date,time)
-                text = ("%s. %s. Deadline: %s\n" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M")))
+                text = ''
+                if i!=(len(results)-1):
+                    text = ("%s. %s. Deadline: %s\n" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M")))
+                else:
+                    text = ("%s. %s. Deadline: %s" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M")))
                 isi += text
-            text = ("%s. %s. Deadline: %s" % (len(results), results[len(results)-1][2], deadline.strftime("%d-%m-%Y %H:%M")))
-            isi += text
             reply(event, isi)
         else:
             reply(event, 'Anda tidak mempunyai schedule!')
         conn.close()
-        
+
     elif '/add' in input:
         uId = str(event.source.user_id)
         textPart = re.findall(r'"(.*?)"', input)
