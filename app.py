@@ -96,8 +96,7 @@ def callback():
         abort(400)
 
     return 'OK'
-# @handler.add(PostbackEvent)
-# def balasPesanan(event):
+
 @handler.add(UnfollowEvent)
 def leaving(event):
     uId = event.source.user_id
@@ -130,64 +129,65 @@ def followReply(event):
 @handler.add(MessageEvent, message=TextMessage)
 def replyText(event):
     input = event.message.text
-    if '/delete' in input:
-        uId = event.source.user_id
-        id = input.split(' ')[1]
-        conn = psycopg2.connect(db_url, sslmode='require')
-        cur = conn.cursor()
-        cur.execute("SELECT uid FROM listSchedules where id = '%s';" % (id))
-        resUid = cur.fetchone()[0]
-        if resUid == uId:
-            cur.execute("delete from listSchedules where id = '%s';" % (id))
-            reply(event,'Delete successful!')
-        else:
-            reply(event,'Unable to delete!')
-        conn.commit()
-        conn.close()
-
-    elif '/showall' == input:
-        uId = event.source.user_id
-        conn = psycopg2.connect(db_url, sslmode='require')
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM listSchedules where uid = '%s';" % (uId))
-        results = cur.fetchall()
-        if len(results)>0:
-            isi = 'Dibawah ini adalah list jadwal anda: \n'
-            for i in range(len(results)):
-                date = results[i][3]
-                time = results[i][4]
-                deadline = datetime.datetime.combine(date,time)
-                text = ''
-                if i!=(len(results)-1):
-                    text = ("%s. %s. Deadline: %s. id = %s\n" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), results[i][0]))
-                else:
-                    text = ("%s. %s. Deadline: %s. id = %s" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), results[i][0]))
-                isi += text
-            reply(event, isi)
-        else:
-            reply(event, 'Anda tidak mempunyai schedule!')
-        conn.close()
-
-    elif '/add' in input:
-        uId = str(event.source.user_id)
-        textPart = re.findall(r'"(.*?)"', input)
-        deadline = datetime.datetime.strptime(textPart[1],'%d %m %Y %H:%M')
-        if deadline < gmt7now():
-            reply(event,'Maaf, waktu deadline anda sudah lewat. Silahkan isikan jadwal yang mendatang.')
-        else:
-            message = textPart[0]
+    try:
+        if '/delete' in input:
+            uId = event.source.user_id
+            id = input.split(' ')[1]
             conn = psycopg2.connect(db_url, sslmode='require')
             cur = conn.cursor()
-            cur.execute("SELECT count (*) FROM listSchedules where uid = '%s';" % (uId))
-            count = cur.fetchone()[0]
-            deadlineDate = datetime.datetime.strftime(deadline,'%Y-%m-%d')
-            deadlineTime = datetime.datetime.strftime(deadline,'%H:%M')
-            cur.execute("INSERT INTO listSchedules (id, uid, pesan, deadlineDate, deadlineTime) values (%s,'%s','%s','%s','%s');" % (count+1,uId,message,deadlineDate,deadlineTime))
-            reply(event,'Schedule berhasil ditambahkan!')
+            cur.execute("SELECT uid FROM listSchedules where id = '%s';" % (id))
+            resUid = cur.fetchone()[0]
+            if resUid == uId:
+                cur.execute("delete from listSchedules where id = '%s';" % (id))
+                reply(event,'Delete successful!')
+            else:
+                reply(event,'Unable to delete!')
             conn.commit()
             conn.close()
-    else:
-        reply(event,'Sorry, your message was not understood')
+
+        elif '/showall' == input:
+            uId = event.source.user_id
+            conn = psycopg2.connect(db_url, sslmode='require')
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM listSchedules where uid = '%s';" % (uId))
+            results = cur.fetchall()
+            if len(results)>0:
+                isi = 'Dibawah ini adalah list jadwal anda: \n'
+                for i in range(len(results)):
+                    date = results[i][3]
+                    time = results[i][4]
+                    deadline = datetime.datetime.combine(date,time)
+                    text = ''
+                    if i!=(len(results)-1):
+                        text = ("%s. %s. Deadline: %s. id = %s\n" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), results[i][0]))
+                    else:
+                        text = ("%s. %s. Deadline: %s. id = %s" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), results[i][0]))
+                    isi += text
+                reply(event, isi)
+            else:
+                reply(event, 'Anda tidak mempunyai schedule!')
+            conn.close()
+
+        elif '/add' in input:
+            uId = str(event.source.user_id)
+            textPart = re.findall(r'"(.*?)"', input)
+            deadline = datetime.datetime.strptime(textPart[1],'%d %m %Y %H:%M')
+            if deadline < gmt7now():
+                reply(event,'Maaf, waktu deadline anda sudah lewat. Silahkan isikan jadwal yang mendatang.')
+            else:
+                message = textPart[0]
+                conn = psycopg2.connect(db_url, sslmode='require')
+                cur = conn.cursor()
+                cur.execute("SELECT count (*) FROM listSchedules where uid = '%s';" % (uId))
+                count = cur.fetchone()[0]
+                deadlineDate = datetime.datetime.strftime(deadline,'%Y-%m-%d')
+                deadlineTime = datetime.datetime.strftime(deadline,'%H:%M')
+                cur.execute("INSERT INTO listSchedules (id, uid, pesan, deadlineDate, deadlineTime) values (%s,'%s','%s','%s','%s');" % (count+1,uId,message,deadlineDate,deadlineTime))
+                reply(event,'Schedule berhasil ditambahkan!')
+                conn.commit()
+                conn.close()
+    except:
+        reply(event,'Your message format was not understood')
 
 # shortening
 def reply(event, isi): #reply message
