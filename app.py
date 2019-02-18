@@ -130,8 +130,23 @@ def followReply(event):
 @handler.add(MessageEvent, message=TextMessage)
 def replyText(event):
     input = event.message.text
-    if '/showall' == input:
-        uId = str(event.source.user_id)
+    if '/delete' in input:
+        uId = event.source.user_id
+        id = input.split(' ')[1]
+        conn = psycopg2.connect(db_url, sslmode='require')
+        cur = conn.cursor()
+        cur.execute("SELECT uid FROM listSchedules where id = '%s';" % (id))
+        resUid = cur.fetchone()[0]
+        if resUid == uId:
+            cur.execute("delete from listSchedules where id = '%s';" % (id))
+            reply(event,'Delete successful!')
+        else:
+            reply(event,'Unable to delete!')
+        conn.commmit()
+        conn.close()
+        
+    elif '/showall' == input:
+        uId = event.source.user_id
         conn = psycopg2.connect(db_url, sslmode='require')
         cur = conn.cursor()
         cur.execute("SELECT * FROM listSchedules where uid = '%s';" % (uId))
