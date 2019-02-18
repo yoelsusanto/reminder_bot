@@ -142,9 +142,9 @@ def replyText(event):
             reply(event,'Delete successful!')
         else:
             reply(event,'Unable to delete!')
-        conn.commmit()
+        conn.commit()
         conn.close()
-        
+
     elif '/showall' == input:
         uId = event.source.user_id
         conn = psycopg2.connect(db_url, sslmode='require')
