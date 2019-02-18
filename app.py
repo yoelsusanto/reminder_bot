@@ -129,7 +129,6 @@ def followReply(event):
 
 @handler.add(MessageEvent, message=TextMessage)
 def replyText(event):
-    stat = True
     input = event.message.text
     if '/showall' == input:
         uId = str(event.source.user_id)
@@ -145,9 +144,9 @@ def replyText(event):
                 deadline = datetime.datetime.combine(date,time)
                 text = ''
                 if i!=(len(results)-1):
-                    text = ("%s. %s. Deadline: %s\n" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M")))
+                    text = ("%s. %s. Deadline: %s. id = %s\n" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), results[i][0]))
                 else:
-                    text = ("%s. %s. Deadline: %s" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M")))
+                    text = ("%s. %s. Deadline: %s. id = %s" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), , results[i][0]))
                 isi += text
             reply(event, isi)
         else:
