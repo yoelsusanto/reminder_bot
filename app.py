@@ -146,7 +146,7 @@ def replyText(event):
                 if i!=(len(results)-1):
                     text = ("%s. %s. Deadline: %s. id = %s\n" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), results[i][0]))
                 else:
-                    text = ("%s. %s. Deadline: %s. id = %s" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), , results[i][0]))
+                    text = ("%s. %s. Deadline: %s. id = %s" % (i+1, results[i][2], deadline.strftime("%d-%m-%Y %H:%M"), results[i][0]))
                 isi += text
             reply(event, isi)
         else:
