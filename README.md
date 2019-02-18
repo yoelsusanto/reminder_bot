@@ -1,24 +1,36 @@
-# Flask Echo
+# Deadline Reminder Bot
 
-Sample echo-bot using [Flask](http://flask.pocoo.org/)
+Reminder line bot using [Flask](http://flask.pocoo.org/). This bot functions to remind you of your deadlines by chatting you to make sure that you don't miss them.
 
-## Getting started
+## How To Use
 
-```
-$ export LINE_CHANNEL_SECRET=YOUR_LINE_CHANNEL_SECRET
-$ export LINE_CHANNEL_ACCESS_TOKEN=YOUR_LINE_CHANNEL_ACCESS_TOKEN
+Tutorial ini akan menunjukkan cara agar anda dapat melakukan deploy terhadap project ini
 
-$ pip install -r requirements.txt
-```
+### Prerequisites
 
-Run WebhookParser sample
+1. Python
+2. Postgresql
+3. Python libraries (flask, psycopg2, linebotsdk, etc)
+4. Heroku account
+5. Github account
+6. Line channel
+7. CronJobs account
 
-```
-$ python app.py
-```
+### Deploy the Project
 
-Run WebhookHandler sample
+Untuk menggunakan bot ini, silahkan upload files program ke github  dan deploy ke heroku. Setelah itu lakukan konfigurasi agar program yang  telah di deploy dapat terhubung pada line channel.
 
-```
-$ python app_with_handler.py
-```
+## 
+
+## Running the Program
+
+Silahkan add bot pada line dan bot akan otomatis mendaftarkan akun line anda kedalam sistem. Untuk dapat running maka berikan configurasi cronjobs pada saat tertentu sesuai kebutuhan anda.
+
+
+
+## Chat interaction
+
+1. /showall
+   Perintah *showall* akan membuat bot menampilkan jadwal yang pernah anda daftarkan.
+2. /add "<deskripsi deadline>" "<dd mm yyyy hh:mm>"
+   Perintah diatas akan membuat bot mendaftarkan deadline anda dan mengingatkan pada waktu sesuai yang di set di cronjobs.
